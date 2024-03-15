@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Megapka</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles/styles.css" />
+    <!-- Boxicons CSS -->
+    <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
+    <style>
+        .container-profile {
+            margin: 100px auto;
+            /* Center the container vertically and horizontally */
+            font-family: Arial, sans-serif;
+            background-color: #f0f5ff;
+            /* Light blue background */
+            color: #333;
+            /* Dark text color */
+            max-width: 800px;
+            padding: 20px;
+            display: flex;
+            /* Use flexbox */
+            justify-content: center;
+            /* Center horizontally */
+            align-items: center;
+            /* Center vertically */
+        }
+
+        .profile-section {
+            background-color: #fff;
+            /* White background */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            /* Shadow effect */
+        }
+
+
+        .h1-profile {
+            margin-top: 0;
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+        }
+
+        .profile-info label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Nav bar -->
+    <nav>
+        <div class="logo">
+            <i class="bx bx-menu menu-icon"></i>
+            <span class="logo-name">Megapka</span>
+        </div>
+        <div class="sidebar">
+            <div class="logo">
+                <i class="bx bx-menu menu-icon"></i>
+                <span class="logo-name">Megapka</span>
+            </div>
+            <div class="sidebar-content">
+                <ul class="lists">
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-home-alt icon"></i>
+                            <span class="link">Profil</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-bell icon"></i>
+                            <span class="link">Forum</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-bar-chart-alt-2 icon"></i>
+                            <span class="link">Poziom</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="bottom-cotent">
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-cog icon"></i>
+                            <span class="link">Ustawienia</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="login" class="nav-link">
+                            <i class="bx bx-log-out icon"></i>
+                            <span class="link">Wyloguj się</span>
+                        </a>
+                    </li>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-profile">
+        <section class="profile-section">
+            <h1 class="h1-profile">Profil</h1>
+            <div class="profile-info">
+                <label for="username">Nazwa:</label>
+                <span id="username">Witkospaśko</span>
+            </div>
+            <div class="profile-info">
+                <label for="fullname">Full Name:</label>
+                <span id="fullname">Wincenty Obornik</span>
+            </div>
+            <div class="profile-info">
+                <label for="email">Email:</label>
+                <span id="email">obornik@example.com</span>
+            </div>
+            <div class="profile-info">
+                <label for="birthdate">Birthdate:</label>
+                <span id="birthdate">11 Wrzesień 2001</span>
+            </div>
+            <div class="profile-info">
+                <label for="bio">Bio:</label>
+                <span id="bio">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut gravida ligula, in cursus
+                    ante. Integer id vehicula nunc. Nulla facilisi. Donec vestibulum odio quis ultricies tempus.</span>
+            </div>
+            <div class="profile-info">
+                <label for="membership">Membership:</label>
+                <span id="membership">Standard</span>
+            </div>
+        </section>
+    </div>
+
+
+    <section class="overlay"></section>
+    <script src="scripts/script.js">
+
+    </script>
+</body>
+
+</html>
