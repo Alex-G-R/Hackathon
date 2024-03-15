@@ -37,7 +37,7 @@ app.post('/login', (req, res) => {
     }
 
     // Query the database to check if the user exists
-    pool.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password], (error, results) => {
+    connection.query('SELECT * FROM account WHERE login = ? AND password = ?', [username, password], (error, results) => {
         if (error) {
             console.error('Error querying database:', error);
             return res.status(500).send('Internal server error.');
@@ -60,12 +60,14 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-    let sql = `INSERT INTO users (username, password, xp) VALUES ('${username}', '${password}','${0}')`;
+    const { username, password } = req.body; // Extract username and password from request body
+
+    let sql = `INSERT INTO account (login, password, xp) VALUES ('${username}', '${password}','${0}')`;
     connection.query(sql, function (err, result) {
         if (err) throw err;
         console.log("1 record inserted");
-        res.redirect('/login');
     });
+    res.redirect('/login');
 });
 
 // Route to serve other HTML files
