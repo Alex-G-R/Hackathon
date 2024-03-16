@@ -141,12 +141,20 @@ app.post('/addpost', (req, res) => {
         axios.post(path, queryObj).then(
             (response) => {
                 let sql = `INSERT INTO posts (author, content) VALUES ('${author}', '${content}')`;
-                    connection.query(sql, function (err, result) {
-                        if (err) throw err;
-                        console.log("post added");
-                    });
+                connection.query(sql, function (err, result) {
+                    if (err) throw err;
+                    console.log("post added");
+                });
                 let result = response.data;
                 console.log(result);
+                let sql2 = `UPDATE account SET xp = xp + 15 WHERE login = '${req.session.login}';`;
+                connection.query(sql2, (err, result) => {
+                    if (err) {
+                        console.error('Error executing query:', err);
+                        return;
+                    }
+                    console.log('XP incremented successfully');
+                });
                 res.redirect('/posts');
             },
             (error) => {
@@ -158,8 +166,7 @@ app.post('/addpost', (req, res) => {
     queryObj = { name: content };
     try {
         makePostRequest('http://127.0.0.1:5000/test', queryObj);
-    } catch (err)
-    {
+    } catch (err) {
         console.log(err);
     }
 },
@@ -179,6 +186,15 @@ app.get('/addcomment', (req, res) => {
         if (results.length === 0) {
             return res.status(404).send('User not found');
         }
+
+        let sql2 = `UPDATE account SET xp = xp + 15 WHERE login = '${req.session.login}';`;
+        connection.query(sql2, (err, result) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return;
+            }
+            console.log('XP incremented successfully');
+        });
 
         // Render the profile view with user data
         res.render('addcomment', { user: results[0] });
@@ -210,6 +226,14 @@ app.post('/like-post/:postId', async (req, res) => {
         });
         // Respond with a success message
         res.status(200).json({ message: 'Post liked successfully' });
+        let sql2 = `UPDATE account SET xp = xp + 15 WHERE login = (SELECT author FROM posts);`;
+        connection.query(sql2, (err, result) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return;
+            }
+            console.log('XP incremented successfully');
+        });
     } catch (error) {
         console.error('Failed to like the post:', error);
         res.status(500).json({ error: 'Internal server error' });

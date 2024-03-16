@@ -8,6 +8,7 @@ CORS(app)
 def test():
     data = request.json
     if 'name' in data and len(data['name']) > 10:
+        print(data['name']);
         return jsonify({"Result": data['name']})
     else:
         return jsonify({"Error": "Name should be provided and longer than 10 characters."}), 400
