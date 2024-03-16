@@ -1,0 +1,39 @@
+.container-profile {
+    margin: 100px auto;
+    /* Center the container vertically and horizontally */
+    font-family: Arial, sans-serif;
+    background-color: #f0f5ff;
+    /* Light blue background */
+    color: #333;
+    /* Dark text color */
+    max-width: 800px;
+    padding: 20px;
+    display: flex;
+    /* Use flexbox */
+    justify-content: center;
+    /* Center horizontally */
+    align-items: center;
+    /* Center vertically */
+}
+
+.profile-section {
+    background-color: #fff;
+    /* White background */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* Shadow effect */
+}
+
+
+.h1-profile {
+    margin-top: 0;
+}
+
+.profile-info {
+    margin-bottom: 20px;
+}
+
+.profile-info label {
+    font-weight: bold;
+}

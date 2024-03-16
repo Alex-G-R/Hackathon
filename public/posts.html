@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Wall</title>
+</head>
+
+<body>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Megapka</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <!-- CSS -->
+        <link rel="stylesheet" href="styles/styles.css" />
+        <link rel="stylesheet" href="styles/profile.css">
+        <!-- Boxicons CSS -->
+        <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
+        <style>
+            .add-post-btn {
+                min-height: 75px;
+                min-width: 180px;
+                font-size: 1.2em;
+                font-weight: 600;
+                position: fixed;
+                /* Fixes the button position */
+                bottom: 20px;
+                /* Adjust as needed */
+                right: 20px;
+                /* Adjust as needed */
+                padding: 10px 20px;
+                /* Add padding to make the button more clickable */
+                background-color: #007bff;
+                /* Button background color */
+                color: #fff;
+                /* Text color */
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                /* Optional: Add hover effect */
+            }
+
+            .add-post-btn:hover {
+                transition: all ease-in-out 0.15s;
+                background-color: #135296;
+                /* Darker shade on hover */
+            }
+
+
+
+            #posts {
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .post {
+                width: 80%;
+                margin-bottom: 20px;
+                background-color: #ffffff;
+                border: 1px solid #dddddd;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .first-post {
+                margin-top: 100px;
+            }
+
+            .post h3 {
+                margin-top: 0;
+                color: #333333;
+            }
+
+            .post p {
+                margin-bottom: 10px;
+                color: #666666;
+            }
+
+            .post button {
+                padding: 8px 16px;
+                background-color: #007bff;
+                color: #ffffff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .post button:hover {
+                background-color: #0056b3;
+            }
+
+            /* Styling for comments */
+            .comment {
+                border: none;
+                /* Remove border from the main comment container */
+                margin-top: 10px;
+                background-color: #f1f1f1;
+                padding: 10px;
+            }
+
+            .comment-author-p {
+                border-top: 1px solid #ddd;
+                /* Add border to separate the author */
+                padding-bottom: 2px;
+                margin-top: 5px;
+                margin-bottom: 2px;
+                color: #000;
+                font-weight: 500;
+            }
+
+            .comment-text-p {
+                border-bottom: 1px solid #ddd;
+                color: #333;
+                /* Color for the comment text */
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- Nav bar -->
+        <nav>
+            <div class="logo">
+                <i class="bx bx-menu menu-icon"></i>
+                <span class="logo-name">Megapka</span>
+                <button class="add-post-btn" id="addPostBtn">Dodaj post</button>
+            </div>
+            <div class="sidebar">
+                <div class="logo">
+                    <i class="bx bx-menu menu-icon"></i>
+                    <span class="logo-name">Megapka</span>
+                </div>
+                <div class="sidebar-content">
+                    <ul class="lists">
+                        <li class="list">
+                            <a href="profile" class="nav-link" id="profil-btn">
+                                <i class="bx bx-home-alt icon"></i>
+                                <span class="link">Profil</span>
+                            </a>
+                        </li>
+                        <li class="list">
+                            <a href="#" class="nav-link" id="forum-btn">
+                                <i class="bx bx-bell icon"></i>
+                                <span class="link">Forum</span>
+                            </a>
+                        </li>
+                        <li class="list">
+                            <a href="#" class="nav-link" id="poziom-btn">
+                                <i class="bx bx-bar-chart-alt-2 icon"></i>
+                                <span class="link">Poziom</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="bottom-cotent">
+                        <li class="list">
+                            <a href="#" class="nav-link">
+                                <i class="bx bx-cog icon"></i>
+                                <span class="link">Ustawienia</span>
+                            </a>
+                        </li>
+                        <li class="list">
+                            <a href="login" class="nav-link">
+                                <i class="bx bx-log-out icon"></i>
+                                <span class="link">Wyloguj się</span>
+                            </a>
+                        </li>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div id="posts"></div>
+
+        <script>
+            async function fetchPosts(page, limit) {
+                const response = await fetch(`/posts-data?page=${page}&limit=${limit}`);
+                const posts = await response.json();
+                return posts;
+            }
+
+            async function fetchComments(postId) {
+                const response = await fetch(`/comments/${postId}`);
+                const comments = await response.json();
+                return comments;
+            }
+
+            async function displayPosts() {
+                const postsContainer = document.getElementById('posts');
+                const posts = await fetchPosts(1, 10); // Assuming page 1 and limit 10
+
+                if (posts.length === 0) {
+                    // Display a message indicating that there are no posts
+                    const messageElement = document.createElement('p');
+                    messageElement.textContent = "No posts found.";
+                    postsContainer.appendChild(messageElement);
+                } else {
+                    for (let i = 0; i < posts.length; i++) {
+                        const post = posts[i];
+
+                        // Create a new div for each post
+                        const postContainer = document.createElement('div');
+                        postContainer.classList.add('post');
+
+                        // Add 'first-post' class to the first post
+                        if (i === 0) {
+                            postContainer.classList.add('first-post');
+                        }
+
+                        // Create elements for post content
+                        const authorElement = document.createElement('h3');
+                        authorElement.textContent = post.author;
+
+                        const contentElement = document.createElement('p');
+                        contentElement.textContent = post.content;
+
+                        const loadCommentsButton = document.createElement('button');
+                        loadCommentsButton.textContent = "Load Comments";
+                        loadCommentsButton.addEventListener('click', async () => {
+                            if (commentsContainer.style.display === "none") {
+                                commentsContainer.style.display = "block";
+                                loadCommentsButton.textContent = "Hide Comments";
+                                await loadComments(post.id);
+                            } else {
+                                commentsContainer.style.display = "none";
+                                loadCommentsButton.textContent = "Load Comments";
+                            }
+                        });
+
+                        const commentsContainer = document.createElement('div');
+                        commentsContainer.id = `comments-${post.id}`;
+                        commentsContainer.style.display = "none"; // Hide comments by default
+
+                        // Append elements to post container
+                        postContainer.appendChild(authorElement);
+                        postContainer.appendChild(contentElement);
+                        postContainer.appendChild(loadCommentsButton);
+                        postContainer.appendChild(commentsContainer);
+
+                        // Append post container to posts container
+                        postsContainer.appendChild(postContainer);
+                    }
+                }
+            }
+
+
+
+
+
+            async function loadComments(postId) {
+                const commentsContainer = document.getElementById(`comments-${postId}`);
+                commentsContainer.innerHTML = ''; // Clear previous comments
+                const comments = await fetchComments(postId);
+                for (const comment of comments) {
+                    const commentElement = document.createElement('div');
+                    commentElement.innerHTML = `
+                    <p class="comment-author-p">${comment.author}:</p> <p>${comment.content}</p>
+                `;
+                    commentsContainer.appendChild(commentElement);
+                }
+            }
+
+            displayPosts();
+        </script>
+
+        <section class="overlay"></section>
+        <script defer>
+            document.getElementById('addPostBtn').addEventListener('click', () => {
+                window.location.href = 'addpost'; 
+            });
+
+        </script>
+        <script src="scripts/script.js" defer>
+
+        </script>
+    </body>
+
+</html>

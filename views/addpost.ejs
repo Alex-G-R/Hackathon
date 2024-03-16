@@ -4,15 +4,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Megapka</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!-- CSS -->
+    <title>Create Post</title>
     <link rel="stylesheet" href="styles/styles.css" />
-    <link rel="stylesheet" href="styles/profile.css">
-    <!-- Boxicons CSS -->
     <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
     <style>
-        
+        .container-addpost {
+            max-width: 400px;
+            margin: 0 auto;
+            margin-top: 120px;
+            padding: 20px;
+            border: 2px solid #b7c0d3;
+            border-radius: 5px;
+        }
+
+        .h2-addpost {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .label-addpost {
+            font-weight: bold;
+        }
+
+        .text-addpost,
+        .textarea-addpost {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        .button-addpost{
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .button-addpost:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 
@@ -31,7 +69,7 @@
             <div class="sidebar-content">
                 <ul class="lists">
                     <li class="list">
-                        <a href="#" class="nav-link" id="profil-btn">
+                        <a href="profile" class="nav-link" id="profil-btn">
                             <i class="bx bx-home-alt icon"></i>
                             <span class="link">Profil</span>
                         </a>
@@ -66,43 +104,18 @@
             </div>
         </div>
     </nav>
+    <div class="container-addpost">
+        <h2 class="h2-addpost">Create Post</h2>
+        <form id="postForm" method="post">
+            <label for="author" class="label-addpost">Author:</label>
+            <input type="text" class="text-addpost" id="author" name="author" value="<%- user.login %>" readonly required>
 
-    <div class="container-profile" id="profile-section-main">
-        <section class="profile-section">
-            <h1 class="h1-profile">Profil</h1>
-            <div class="profile-info">
-                <label for="username">Nazwa:</label>
-                <span id="username">
-                    <%= user.login %>
-                </span>
-            </div>
-            <div class="profile-info">
-                <label for="fullname">Full Name:</label>
-                <span id="fullname">
-                    <%= user.full_name %>
-                </span>
-            </div>
-            <div class="profile-info">
-                <label for="email">Email:</label>
-                <span id="email">
-                    <%= user.email %>
-                </span>
-            </div>
-            <div class="profile-info">
-                <label for="birthdate">Birthdate:</label>
-                <span id="birthdate">
-                    <%= user.date_of_birth %>
-                </span>
-            </div>
-            <div class="profile-info">
-                <label for="bio">Bio:</label>
-                <span id="bio">
-                    <%= user.descr %>
-                </span>
-            </div>
-        </section>
+            <label for="content" class="label-addpost">Content:</label>
+            <textarea id="content" name="content" rows="4" class=textarea-addpost required></textarea>
+
+            <button type="submit" class="button-addpost">Submit</button>
+        </form>
     </div>
-
 
     <section class="overlay"></section>
     <script src="scripts/script.js" defer>
