@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const axios = require('axios');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 
@@ -136,13 +137,34 @@ app.get('/addpost', (req, res) => {
 app.post('/addpost', (req, res) => {
     const { author, content } = req.body; // Extract author and content from request body
 
-    let sql = `INSERT INTO posts (author, content) VALUES ('${author}', '${content}')`;
-    connection.query(sql, function (err, result) {
-        if (err) throw err;
-        console.log("post added");
-    });
-    res.redirect('/posts');
-});
+    async function makePostRequest(path, queryObj) {
+        axios.post(path, queryObj).then(
+            (response) => {
+                let sql = `INSERT INTO posts (author, content) VALUES ('${author}', '${content}')`;
+                    connection.query(sql, function (err, result) {
+                        if (err) throw err;
+                        console.log("post added");
+                    });
+                let result = response.data;
+                console.log(result);
+                res.redirect('/posts');
+            },
+            (error) => {
+                console.log(error);
+            }
+        );
+    }
+
+    queryObj = { name: content };
+    try {
+        makePostRequest('http://127.0.0.1:5000/test', queryObj);
+    } catch (err)
+    {
+        console.log(err);
+    }
+},
+);
+
 
 
 // Route to serve the posts.html file
