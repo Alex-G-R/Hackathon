@@ -1,9 +1,12 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const axios = require('axios');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const { exec, spawn } = require('child_process');
+const fs = require('fs');
+const readline = require('readline');
+
 
 const app = express();
 const PORT = 3000;
@@ -36,6 +39,44 @@ const connection = mysql.createConnection({
 connection.connect(function (err) {
     if (err) throw err;
     console.log("Connected!");
+
+    // Query the database to retrieve XP values
+    connection.query('SELECT id, xp FROM account', (error, results) => {
+        if (error) {
+            console.error('Error querying database:', error);
+            return;
+        }
+
+        // Loop through the results
+        results.forEach((row) => {
+            const { id, xp } = row;
+
+            // Determine the rank based on XP
+            let rank;
+            if (xp < 50) {
+                rank = 'Świeżak';
+            } else if (xp < 100) {
+                rank = 'Młody entuzjasta';
+            } else if (xp < 200) {
+                rank = 'Zaangażowany';
+            } else if (xp < 350) {
+                rank = 'Stały bywalec';
+            } else if (xp < 500) {
+                rank = 'Wschodząca gwiazda';
+            } else {
+                rank = 'Wielki mistrz';
+            }
+
+            // Update the rank in the database
+            connection.query('UPDATE account SET rank = ? WHERE id = ?', [rank, id], (updateError, updateResults) => {
+                if (updateError) {
+                    console.error('Error updating rank in database:', updateError);
+                    return;
+                }
+                console.log(`Updated rank for record with ID ${id}`);
+            });
+        });
+    });
 });
 
 // Route to serve the login.html file
@@ -157,19 +198,60 @@ app.get('/addpost', (req, res) => {
     });
 });
 
-app.post('/addpost', (req, res) => {
-    const { author, content } = req.body; // Extract author and content from request body
 
-    async function makePostRequest(path, queryObj) {
-        axios.post(path, queryObj).then(
-            (response) => {
+function startPython() {
+    return new Promise((resolve, reject) => {
+        const pythonProcess = spawn('python', ['app.py']);
+        pythonProcess.on('close', (code) => {
+            console.log(`Python process exited with code ${code}`);
+            if (code === 0) {
+                resolve();
+            } else {
+                reject(new Error(`Python process exited with code ${code}`));
+            }
+        });
+    });
+}
+
+app.post('/addpost', async (req, res) => {
+    const { author, content } = req.body;
+
+    const filePath = `./comments/plik.txt`;
+
+    // Write content into the file
+    fs.writeFile(filePath, content, (err) => {
+        if (err) {
+            console.error('Error writing to file:', err);
+            return;
+        }
+        console.log(`Content has been written to the file "${filePath}" successfully.`);
+    });
+
+    try {
+        await startPython(); // Wait for the Python script to finish
+
+        //Read the file after the Python script finishes
+        const rl = readline.createInterface({
+            input: fs.createReadStream(filePath),
+            output: process.stdout,
+            terminal: false
+        });
+
+        let bot_status;
+        rl.once('line', (line) => {
+            bot_status = line;
+            rl.close(); // Close the readline interface after reading the first line
+
+            // Continue with further logic based on bot_status
+            if (bot_status === 'false') {
+                // Insert post into the database
                 let sql = `INSERT INTO posts (author, content) VALUES ('${author}', '${content}')`;
                 connection.query(sql, function (err, result) {
                     if (err) throw err;
                     console.log("post added");
                 });
-                let result = response.data;
-                console.log(result);
+
+                // Update XP for the user
                 let sql2 = `UPDATE account SET xp = xp + 15 WHERE login = '${req.session.login}';`;
                 connection.query(sql2, (err, result) => {
                     if (err) {
@@ -178,22 +260,76 @@ app.post('/addpost', (req, res) => {
                     }
                     console.log('XP incremented successfully');
                 });
-                res.redirect('/posts');
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
-    }
 
-    queryObj = { name: content };
-    try {
-        makePostRequest('http://127.0.0.1:5000/test', queryObj);
-    } catch (err) {
-        console.log(err);
+                // Clear the file (remove its contents)
+                fs.writeFile(filePath, '', (err) => {
+                    if (err) {
+                        console.error('Error clearing file:', err);
+                        return;
+                    }
+                    console.log(`The file "${filePath}" has been successfully cleared.`);
+                });
+
+                res.redirect('/posts');
+            }
+            else if (bot_status === 'true') {
+                sql = `INSERT INTO posts (author, content) VALUES ('${author}', '${content}')`;
+                connection.query(sql, (err, result) => {
+                    if (err) {
+                        console.error('Error inserting post:', err);
+                        return;
+                    }
+
+                    // Update XP for the user
+                    let sql2 = `UPDATE account SET xp = xp + 15 WHERE login = '${req.session.login}'`;
+                    connection.query(sql2, (err, result) => {
+                        if (err) {
+                            console.error('Error updating XP:', err);
+                            return;
+                        }
+
+                        let sql3 = "SELECT * FROM posts ORDER BY id DESC LIMIT 1";
+                        connection.query(sql3, (err, postid_comm) => {
+                            if (err) {
+                                console.error('Error selecting post:', err);
+                                return;
+                            }
+                            const postId_comm = postid_comm[0].id;
+
+                            // Insert a comment related to the last post into the comments table
+                            let sql4 = `INSERT INTO comments (post_id, author, content) VALUES ('${postId_comm}', 'Bot kozak', 'Twój komentarz jest obraźliwy! Tracisz XP')`;
+                            connection.query(sql4, (err, result) => {
+                                if (err) {
+                                    console.error('Error inserting comment:', err);
+                                    return;
+                                }
+
+                                // Clear the file (remove its contents)
+                                fs.writeFile(filePath, '', (err) => {
+                                    if (err) {
+                                        console.error('Error clearing file:', err);
+                                        return;
+                                    }
+                                    console.log(`The file "${filePath}" has been successfully cleared.`);
+                                    res.redirect('/posts');
+                                });
+                            });
+                        });
+                    });
+                });
+            }
+        });
+
+        //Listen for errors
+        rl.on('error', (err) => {
+            console.error('Error reading file:', err);
+            // Handle error as needed
+        });
+    } catch (error) {
+        console.log(error);
+        // Handle error as needed
     }
-},
-);
+});
 
 
 
@@ -266,7 +402,26 @@ app.post('/like-post/:postId', async (req, res) => {
 
 // Route to serve the posts.html file
 app.get('/posts', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'posts.html'));
+    // Check if the user is authenticated
+    if (!req.session.login) {
+        return res.status(401).send('Unauthorized');
+    }
+
+    // Fetch user information from the database using the login stored in session
+    connection.query('SELECT * FROM account WHERE login = ?', [req.session.login], (error, results) => {
+        if (error) {
+            console.error('Error querying database:', error);
+            return res.status(500).send('Internal server error.');
+        }
+
+        // Check if user data is found
+        if (results.length === 0) {
+            return res.status(404).send('User not found');
+        }
+
+        // Render the profile view with user data
+        res.render('posts', { user: results[0] });
+    });
 });
 
 // API Endpoints
