@@ -116,6 +116,29 @@ app.get('/profile', (req, res) => {
     });
 });
 
+app.get('/level', (req, res) => {
+    // Check if the user is authenticated
+    if (!req.session.login) {
+        return res.status(401).send('Unauthorized');
+    }
+
+    // Fetch user information from the database using the login stored in session
+    connection.query('SELECT * FROM account WHERE login = ?', [req.session.login], (error, results) => {
+        if (error) {
+            console.error('Error querying database:', error);
+            return res.status(500).send('Internal server error.');
+        }
+
+        // Check if user data is found
+        if (results.length === 0) {
+            return res.status(404).send('User not found');
+        }
+
+        // Render the profile view with user data
+        res.render('level', { user: results[0] });
+    });
+});
+
 // Route to serve the posts.html file
 app.get('/addpost', (req, res) => {
     connection.query('SELECT * FROM account WHERE login = ?', [req.session.login], (error, results) => {
@@ -226,7 +249,7 @@ app.post('/like-post/:postId', async (req, res) => {
         });
         // Respond with a success message
         res.status(200).json({ message: 'Post liked successfully' });
-        let sql2 = `UPDATE account SET xp = xp + 15 WHERE login = (SELECT author FROM posts);`;
+        const sql2 = `UPDATE account SET xp = xp + 15 WHERE login = (SELECT author FROM posts WHERE id = "${postId}" LIMIT 1);`;
         connection.query(sql2, (err, result) => {
             if (err) {
                 console.error('Error executing query:', err);
