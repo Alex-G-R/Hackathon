@@ -134,7 +134,7 @@ app.get('/addpost', (req, res) => {
 });
 
 app.post('/addpost', (req, res) => {
-    const {author, content} = req.body; // Extract author and content from request body
+    const { author, content } = req.body; // Extract author and content from request body
 
     let sql = `INSERT INTO posts (author, content) VALUES ('${author}', '${content}')`;
     connection.query(sql, function (err, result) {
@@ -143,6 +143,57 @@ app.post('/addpost', (req, res) => {
     });
     res.redirect('/posts');
 });
+
+
+// Route to serve the posts.html file
+app.get('/addcomment', (req, res) => {
+    connection.query('SELECT * FROM account WHERE login = ?', [req.session.login], (error, results) => {
+        if (error) {
+            console.error('Error querying database:', error);
+            return res.status(500).send('Internal server error.');
+        }
+
+        // Check if user data is found
+        if (results.length === 0) {
+            return res.status(404).send('User not found');
+        }
+
+        // Render the profile view with user data
+        res.render('addcomment', { user: results[0] });
+    });
+});
+
+app.post('/addcomment', (req, res) => {
+    const postId = req.query.postId;
+    const { author, content } = req.body; // Extract author and content from request body
+
+    let sql = `INSERT INTO comments (post_id, author, content) VALUES ('${postId}', '${author}', '${content}')`;
+    connection.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("comment added");
+    });
+    res.redirect('/posts');
+});
+
+// Define the route for liking a post
+app.post('/like-post/:postId', async (req, res) => {
+    try {
+        const postId = req.params.postId;
+
+        let sql = `UPDATE posts SET reactions = reactions + 1 WHERE id = ${postId};`
+
+        connection.query(sql, function (err, result) {
+            if (err) throw err;
+            console.log("post liked");
+        });
+        // Respond with a success message
+        res.status(200).json({ message: 'Post liked successfully' });
+    } catch (error) {
+        console.error('Failed to like the post:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 // Route to serve the posts.html file
 app.get('/posts', (req, res) => {
@@ -153,7 +204,7 @@ app.get('/posts', (req, res) => {
 // API Endpoints
 app.get('/posts-data', (req, res) => {
     let { page, limit } = req.query;
-    
+
     // Convert page and limit to integers
     page = parseInt(page);
     limit = parseInt(limit);

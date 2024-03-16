@@ -20,6 +20,22 @@
         <!-- Boxicons CSS -->
         <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
         <style>
+            .show-reactions {
+                float: right;
+                float: top;
+                margin-right: 25px;
+            }
+
+            .add-reaction-button {
+                float: right;
+                float: top;
+                margin-right: 25px;
+            }
+
+            .add-comment-button {
+                float: right;
+            }
+
             .add-post-btn {
                 min-height: 75px;
                 min-width: 180px;
@@ -191,7 +207,7 @@
 
             async function displayPosts() {
                 const postsContainer = document.getElementById('posts');
-                const posts = await fetchPosts(1, 10); // Assuming page 1 and limit 10
+                const posts = await fetchPosts(1, 1000); // Assuming page 1 and limit 10
 
                 if (posts.length === 0) {
                     // Display a message indicating that there are no posts
@@ -231,6 +247,48 @@
                             }
                         });
 
+                        const addCommentButton = document.createElement('button');
+                        addCommentButton.setAttribute('class', 'add-comment-button');
+                        addCommentButton.setAttribute('data-post-id', `${i + 1}`);
+                        addCommentButton.textContent = "Add Comment";
+                        addCommentButton.addEventListener('click', () => {
+                            window.location.href = '/addcomment?postId=' + post.id;
+                        });
+
+                        const showReactions = document.createElement('button');
+                        showReactions.setAttribute('class', 'show-reactions');
+                        showReactions.setAttribute('data-post-id', `${i + 1}`);
+                        showReactions.textContent = post.reactions;
+
+
+                        const addReactionButton = document.createElement('button');
+                        addReactionButton.setAttribute('class', 'add-reaction-button');
+                        addReactionButton.setAttribute('data-post-id', `${i + 1}`);
+                        addReactionButton.textContent = "Like!";
+                        addReactionButton.addEventListener('click', () => {
+                            // Send a POST request to the server to increment the reaction column
+                            fetch(`/like-post/${post.id}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ postId: post.id })
+                            })
+                                .then(response => {
+                                    if (response.ok) {
+                                        // Update the UI to reflect the incremented reaction
+                                        // For example, you can change the button text or color
+                                        addReactionButton.textContent = "Liked!";
+                                        addReactionButton.disabled = true; // Disable the button to prevent multiple likes
+                                    } else {
+                                        console.error('Failed to like the post:', response.statusText);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error while liking the post:', error);
+                                });
+                        });
+
                         const commentsContainer = document.createElement('div');
                         commentsContainer.id = `comments-${post.id}`;
                         commentsContainer.style.display = "none"; // Hide comments by default
@@ -239,6 +297,9 @@
                         postContainer.appendChild(authorElement);
                         postContainer.appendChild(contentElement);
                         postContainer.appendChild(loadCommentsButton);
+                        postContainer.appendChild(addCommentButton);
+                        postContainer.appendChild(addReactionButton);
+                        postContainer.appendChild(showReactions);
                         postContainer.appendChild(commentsContainer);
 
                         // Append post container to posts container
@@ -246,6 +307,7 @@
                     }
                 }
             }
+
 
 
 
@@ -270,7 +332,7 @@
         <section class="overlay"></section>
         <script defer>
             document.getElementById('addPostBtn').addEventListener('click', () => {
-                window.location.href = 'addpost'; 
+                window.location.href = 'addpost';
             });
 
         </script>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Post</title>
+    <title>Add comment</title>
     <link rel="stylesheet" href="styles/styles.css" />
     <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
     <style>
@@ -36,7 +36,7 @@
             box-sizing: border-box;
         }
 
-        .button-addpost {
+        .button-addpost{
             display: block;
             width: 100%;
             padding: 10px;
@@ -105,12 +105,12 @@
         </div>
     </nav>
     <div class="container-addpost">
-        <h2 class="h2-addpost">Create Post</h2>
+        <h2 class="h2-addpost">Add comment</h2>
         <form id="postForm" method="post">
             <label for="author" class="label-addpost">Author:</label>
-            <input type="text" class="text-addpost" id="author" name="author" value="<%- user.login %>" readonly
-                required>
-
+            <input type="text" class="text-addpost" id="author" name="author" value="<%- user.login %>" readonly required>
+        
+            
             <label for="content" class="label-addpost">Content:</label>
             <textarea id="content" name="content" rows="4" class=textarea-addpost required></textarea>
 
